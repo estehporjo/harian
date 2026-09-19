@@ -101,7 +101,7 @@ main{margin-left:255px;width:calc(100% - 255px);padding:26px 34px 45px}
     <div class="form-grid">
       <div class="field"><label>Nama Kasir</label><input id="cashier" placeholder="Contoh: Fahri"></div>
       <div class="field"><label>Varian Es Teh</label><select id="variant"></select></div>
-      <div class="field"><label>Ukuran Cup</label><select id="size"><option value="18">18 oz — Rp3.000</option><option value="22">22 oz — Rp4.000</option></select></div>
+      <div class="field"><label>Ukuran Cup</label><select id="size"><option value="16">16 oz — Rp3.000</option><option value="22">22 oz — Rp4.000</option></select></div>
       <div class="field"><label>Jumlah Cup</label><input id="qty" type="number" min="1" value="1"></div>
       <div class="field"><label>Pembayaran</label><select id="payment"><option>Tunai</option><option>QRIS</option><option>Transfer</option></select></div>
       <div class="field"><label>Total</label><input id="totalPreview" readonly value="Rp 3.000"></div>
@@ -157,7 +157,7 @@ const products={
 let sales=JSON.parse(localStorage.getItem('porjo_sales_v3')||'[]');
 let stocks=JSON.parse(localStorage.getItem('porjo_stocks_v3')||'null')||[
  {name:'Teh',unit:'gram',qty:1000,min:150},{name:'Gula',unit:'gram',qty:3000,min:500},
- {name:'Es batu',unit:'kg',qty:10,min:2},{name:'Cup 18 oz',unit:'cup',qty:100,min:20},
+ {name:'Es batu',unit:'kg',qty:10,min:2},{name:'Cup 16 oz',unit:'cup',qty:100,min:20},
  {name:'Cup 22 oz',unit:'cup',qty:100,min:20},{name:'Sedotan',unit:'pcs',qty:100,min:20},
  {name:'Kulit manggis',unit:'gram',qty:500,min:50},{name:'Sereh',unit:'batang',qty:30,min:5}
 ];
@@ -167,7 +167,7 @@ const rp=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maxim
 const save=()=>{localStorage.setItem('porjo_sales_v3',JSON.stringify(sales));localStorage.setItem('porjo_stocks_v3',JSON.stringify(stocks));localStorage.setItem('porjo_cashier',cashier)};
 function showPage(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');render();}
 function currentPrice(){let v=document.getElementById('variant').value,s=document.getElementById('size').value;return products[v]['p'+s]}
-function updatePrice(){document.getElementById('size').options[0].text='18 oz — '+rp(products[document.getElementById('variant').value].p18);document.getElementById('size').options[1].text='22 oz — '+rp(products[document.getElementById('variant').value].p22);document.getElementById('totalPreview').value=rp(currentPrice()*(+document.getElementById('qty').value||1))}
+function updatePrice(){document.getElementById('size').options[0].text='16 oz — '+rp(products[document.getElementById('variant').value].p18);document.getElementById('size').options[1].text='22 oz — '+rp(products[document.getElementById('variant').value].p22);document.getElementById('totalPreview').value=rp(currentPrice()*(+document.getElementById('qty').value||1))}
 function addSale(){
  cashier=document.getElementById('cashier').value.trim()||'Kasir';
  localStorage.setItem('porjo_cashier',cashier);
@@ -192,8 +192,8 @@ function render(){
  document.getElementById('mCup').textContent=cup;document.getElementById('mOmzet').textContent=rp(om);document.getElementById('mHpp').textContent=rp(hpp);document.getElementById('mLaba').textContent=rp(om-hpp);
  document.getElementById('rCup').textContent=cup;document.getElementById('rOmzet').textContent=rp(om);document.getElementById('rHpp').textContent=rp(hpp);document.getElementById('rLaba').textContent=rp(om-hpp);
  const keys=Object.keys(products),groups=keys.map(v=>{let a=sales.filter(x=>x.variant===v);return {v,c18:a.filter(x=>x.size==='18').reduce((n,x)=>n+x.qty,0),c22:a.filter(x=>x.size==='22').reduce((n,x)=>n+x.qty,0)}}),max=Math.max(1,...groups.map(x=>x.c18+x.c22));
- document.getElementById('variantRows').innerHTML=groups.map(x=>`<div class="sale-row"><b>${x.v}</b><span>${x.c18+x.c22} cup</span><div class="bar"><i style="width:${(x.c18+x.c22)/max*100}%"></i></div><span class="tag">18:${x.c18} • 22:${x.c22}</span></div>`).join('');
- document.getElementById('reportVariants').innerHTML=groups.map(x=>`<div class="sale-row"><b>${x.v}</b><span>18 oz: ${x.c18}</span><span>22 oz: ${x.c22}</span><span>${rp(x.c18*products[x.v].p18+x.c22*products[x.v].p22)}</span></div>`).join('');
+ document.getElementById('variantRows').innerHTML=groups.map(x=>`<div class="sale-row"><b>${x.v}</b><span>${x.c16+x.c22} cup</span><div class="bar"><i style="width:${(x.c16+x.c22)/max*100}%"></i></div><span class="tag">16:${x.c16} • 22:${x.c22}</span></div>`).join('');
+ document.getElementById('reportVariants').innerHTML=groups.map(x=>`<div class="sale-row"><b>${x.v}</b><span>16 oz: ${x.c16}</span><span>22 oz: ${x.c22}</span><span>${rp(x.c16*products[x.v].p18+x.c22*products[x.v].p22)}</span></div>`).join('');
  const rows=sales.slice(0,8).map(x=>`<tr><td>${x.time}</td><td>${x.cashier}</td><td>${x.variant}</td><td>${x.size} oz</td><td>${x.qty}</td><td>${rp(x.total)}</td></tr>`).join('');
  document.getElementById('recent').innerHTML=rows||`<tr><td colspan="6" style="text-align:center;color:#88958e">Belum ada transaksi.</td></tr>`;
  document.getElementById('saleTable').innerHTML=sales.map(x=>`<tr><td>${x.time}</td><td>${x.cashier}</td><td>${x.variant}</td><td>${x.size} oz</td><td>${x.qty}</td><td>${x.payment}</td><td>${rp(x.total)}</td><td><button class="btn danger" onclick="deleteSale(${x.id})">Hapus</button></td></tr>`).join('')||`<tr><td colspan="8" style="text-align:center;color:#88958e">Belum ada transaksi.</td></tr>`;
